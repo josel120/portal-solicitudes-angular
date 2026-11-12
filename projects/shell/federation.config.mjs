@@ -1,6 +1,7 @@
 import {
   withNativeFederation,
   fromPackageJson,
+  mappingsFromWorkspace,
 } from '@angular-architects/native-federation/config';
 
 export default withNativeFederation({
@@ -15,7 +16,8 @@ export default withNativeFederation({
     build: 'package',
   }).patch(['@angular/*'], { includeSecondaries: { keepAll: true } }),
 
-  //sharedMappings: mappingsFromWorkspace({ singleton: true }).filter(['@my-org/*']).get(),
+  // The shared library is a singleton too: one SessionStore / RequestEvents for shell + remotes.
+  sharedMappings: mappingsFromWorkspace({ singleton: true }).filter(['@portal/*']).get(),
 
   skip: ['rxjs/ajax', 'rxjs/fetch', 'rxjs/testing', 'rxjs/webSocket'],
 
