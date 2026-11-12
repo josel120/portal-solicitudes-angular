@@ -1,0 +1,109 @@
+<h1>Bandeja de aprobación</h1>
+
+<div aria-live="polite">
+  @if (notice(); as n) {
+    <p class="ps-alert" [class]="'ps-alert ps-alert--' + n.kind">{{ n.text }}</p>
+  }
+</div>
+
+@if (inbox.error(); as error) {
+  <ps-error-state [message]="error.message" (retry)="inbox.reload()" />
+} @else if (current(); as p) {
+  @if (p.items.length === 0) {
+    <ps-empty-state title="No hay solicitudes pendientes. ¡Bandeja al día!" />
+  } @else {
+    <p class="summary">{{ p.total }} solicitudes pendientes</p>
+    <div class="table-wrap" [class.is-loading]="inbox.isLoading()" [attr.aria-busy]="inbox.isLoading()">
+      <table class="ps-table">
+        <caption class="ps-sr-only">Solicitudes pendientes de aprobación, de la más antigua a la más reciente</caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Título</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Solicitante</th>
+            <th scope="col" class="num">Monto</th>
+            <th scope="col">Creada</th>
+            <th scope="col"><span class="ps-sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (request of p.items; track request.id) {
+            <tr>
+              <td>{{ request.id }}</td>
+              <td><a [routerLink]="['/requests', request.id]">{{ request.title }}</a></td>
+              <td>{{ typeLabels[request.type] }}</td>
+              <td>{{ request.requesterName }}</td>
+              <td class="num">
+                @if (request.amount !== null) {
+                  {{ request.amount | number: '1.2-2' }}
+                } @else {
+                  —
+                }
+              </td>
+              <td>{{ request.createdAt | date: 'dd/MM/yyyy' }}</td>
+              <td class="actions">
+                <button
+                  type="button"
+                  class="ps-btn ps-btn--success"
+                  [disabled]="busyId() !== null"
+                  [attr.aria-label]="'Aprobar solicitud ' + request.id"
+                  (click)="approve(request)"
+                >
+                  Aprobar
+                </button>
+                <button
+                  type="button"
+                  class="ps-btn ps-btn--danger"
+                  [disabled]="busyId() !== null"
+                  [attr.aria-label]="'Rechazar solicitud ' + request.id"
+                  [attr.aria-expanded]="rejectingId() === request.id"
+                  (click)="startReject(request)"
+                >
+                  Rechazar
+                </button>
+              </td>
+            </tr>
+            @if (rejectingId() === request.id) {
+              <tr class="reject-row">
+                <td colspan="7">
+                  <form (ngSubmit)="confirmReject(request)" novalidate>
+                    <div class="ps-field">
+                      <label for="reject-comment">Motivo del rechazo de la solicitud #{{ request.id }}</label>
+                      <textarea
+                        id="reject-comment"
+                        rows="2"
+                        [formControl]="comment"
+                        aria-describedby="reject-comment-error"
+                        (keydown.escape)="cancelReject()"
+                      ></textarea>
+                      <ps-field-error [control]="comment" id="reject-comment-error" />
+                    </div>
+                    <div class="reject-actions">
+                      <button type="button" class="ps-btn" (click)="cancelReject()">Cancelar</button>
+                      <button type="submit" class="ps-btn ps-btn--danger" [disabled]="busyId() === request.id">
+                        {{ busyId() === request.id ? 'Enviando…' : 'Confirmar rechazo' }}
+                      </button>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination" aria-label="Paginación">
+        <button type="button" class="ps-btn" [disabled]="page() <= 1" (click)="page.set(page() - 1)">Anterior</button>
+        <span>Página {{ page() }} de {{ totalPages() }}</span>
+        <button type="button" class="ps-btn" [disabled]="page() >= totalPages()" (click)="page.set(page() + 1)">
+          Siguiente
+        </button>
+      </nav>
+    }
+  }
+} @else {
+  <ps-loading-state label="Cargando bandeja…" />
+}
