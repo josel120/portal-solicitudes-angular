@@ -8,7 +8,8 @@
     "start:requests": "ng serve mfe-requests",
     "start:approvals": "ng serve mfe-approvals",
     "build": "ng build shell && ng build mfe-requests && ng build mfe-approvals",
-    "test": "ng test shared --watch=false && ng test shell --watch=false && ng test mfe-requests --watch=false && ng test mfe-approvals --watch=false"
+    "test": "ng test shared --watch=false && ng test shell --watch=false && ng test mfe-requests --watch=false && ng test mfe-approvals --watch=false",
+    "lint": "ng lint"
   },
   "private": true,
   "packageManager": "npm@12.0.2",
@@ -28,12 +29,16 @@
     "@angular/build": "^22.2.7",
     "@angular/cli": "^22.2.7",
     "@angular/compiler-cli": "^22.2.0",
+    "@eslint/js": "^10.0.1",
     "@softarc/native-federation-orchestrator": "^4.10.0",
+    "angular-eslint": "22.6.0",
     "concurrently": "^10.0.7",
+    "eslint": "^10.12.0",
     "jsdom": "^30.0.0",
     "ng-packagr": "^22.2.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
+    "typescript-eslint": "8.71.0",
     "vitest": "^5.0.0"
   }
 }

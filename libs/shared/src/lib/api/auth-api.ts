@@ -24,7 +24,8 @@ export class AuthApi {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/auth/logout`, null).pipe(
+    return this.http.post(`${this.baseUrl}/auth/logout`, null).pipe(
+      map(() => undefined),
       catchError((error: unknown) => throwError(() => toApiError(error))),
     );
   }

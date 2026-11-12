@@ -29,7 +29,7 @@ export const routes: Routes = [
  * where the user was going so "Reintentar" can try the same navigation again. The router does not
  * cache failed `loadChildren` calls, so the retry really re-fetches the remote.
  */
-export function handleNavigationError(event: NavigationError): RedirectCommand | void {
+export function handleNavigationError(event: NavigationError): RedirectCommand | undefined {
   if (event.error instanceof RemoteUnavailableError) {
     const router = inject(Router);
     console.error(event.error, event.error.cause);
@@ -39,4 +39,5 @@ export function handleNavigationError(event: NavigationError): RedirectCommand |
       }),
     );
   }
+  return undefined;
 }

@@ -33,7 +33,7 @@ export class ErrorState {
   readonly title = input('No pudimos cargar la información.');
   readonly message = input<string | null>(null);
   readonly retryable = input(true);
-  readonly retry = output<void>();
+  readonly retry = output();
 }
 
 @Component({
