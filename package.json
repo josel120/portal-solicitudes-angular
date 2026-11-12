@@ -9,7 +9,8 @@
     "start:approvals": "ng serve mfe-approvals",
     "build": "ng build shell && ng build mfe-requests && ng build mfe-approvals",
     "test": "ng test shared --watch=false && ng test shell --watch=false && ng test mfe-requests --watch=false && ng test mfe-approvals --watch=false",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "e2e": "playwright test"
   },
   "private": true,
   "packageManager": "npm@12.0.2",
@@ -30,6 +31,7 @@
     "@angular/cli": "^22.2.7",
     "@angular/compiler-cli": "^22.2.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
     "@softarc/native-federation-orchestrator": "^4.10.0",
     "angular-eslint": "22.6.0",
     "concurrently": "^10.0.7",
