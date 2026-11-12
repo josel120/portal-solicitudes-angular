@@ -14,6 +14,38 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "projects/shell/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "shell:esbuild:production"
+            },
+            "development": {
+              "target": "shell:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "shell:serve-original:development",
+            "tsConfig": "projects/shell/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "browser": "projects/shell/src/main.ts",
@@ -24,7 +56,8 @@
                 "input": "projects/shell/public"
               }
             ],
-            "styles": ["projects/shell/src/styles.css"]
+            "styles": ["projects/shell/src/styles.css"],
+            "polyfills": ["es-module-shims"]
           },
           "configurations": {
             "production": {
@@ -50,20 +83,20 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "shell:build:production"
+              "buildTarget": "shell:esbuild:production"
             },
             "development": {
-              "buildTarget": "shell:build:development"
+              "buildTarget": "shell:esbuild:development"
             }
           },
-          "defaultConfiguration": "development"
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4200
+          }
         }
       }
     },
@@ -75,6 +108,38 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "projects/mfe-requests/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "mfe-requests:esbuild:production"
+            },
+            "development": {
+              "target": "mfe-requests:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "mfe-requests:serve-original:development",
+            "tsConfig": "projects/mfe-requests/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "browser": "projects/mfe-requests/src/main.ts",
@@ -85,7 +150,8 @@
                 "input": "projects/mfe-requests/public"
               }
             ],
-            "styles": ["projects/mfe-requests/src/styles.css"]
+            "styles": ["projects/mfe-requests/src/styles.css"],
+            "polyfills": ["es-module-shims"]
           },
           "configurations": {
             "production": {
@@ -111,20 +177,20 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mfe-requests:build:production"
+              "buildTarget": "mfe-requests:esbuild:production"
             },
             "development": {
-              "buildTarget": "mfe-requests:build:development"
+              "buildTarget": "mfe-requests:esbuild:development"
             }
           },
-          "defaultConfiguration": "development"
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4201
+          }
         }
       }
     },
@@ -136,6 +202,38 @@
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "cacheExternalArtifacts": true,
+            "tsConfig": "projects/mfe-approvals/tsconfig.federation.json"
+          },
+          "configurations": {
+            "production": {
+              "target": "mfe-approvals:esbuild:production"
+            },
+            "development": {
+              "target": "mfe-approvals:esbuild:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "mfe-approvals:serve-original:development",
+            "tsConfig": "projects/mfe-approvals/tsconfig.federation.json",
+            "rebuildDelay": 500,
+            "cacheExternalArtifacts": true,
+            "dev": true,
+            "devServer": true,
+            "port": 0
+          }
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "esbuild": {
           "builder": "@angular/build:application",
           "options": {
             "browser": "projects/mfe-approvals/src/main.ts",
@@ -146,7 +244,8 @@
                 "input": "projects/mfe-approvals/public"
               }
             ],
-            "styles": ["projects/mfe-approvals/src/styles.css"]
+            "styles": ["projects/mfe-approvals/src/styles.css"],
+            "polyfills": ["es-module-shims"]
           },
           "configurations": {
             "production": {
@@ -172,20 +271,20 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
+        "serve-original": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "mfe-approvals:build:production"
+              "buildTarget": "mfe-approvals:esbuild:production"
             },
             "development": {
-              "buildTarget": "mfe-approvals:build:development"
+              "buildTarget": "mfe-approvals:esbuild:development"
             }
           },
-          "defaultConfiguration": "development"
-        },
-        "test": {
-          "builder": "@angular/build:unit-test"
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 4202
+          }
         }
       }
     },

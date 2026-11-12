@@ -1,0 +1,4 @@
+{
+  "mfe-requests": "http://localhost:4200/remoteEntry.json",
+  "mfe-approvals": "http://localhost:4200/remoteEntry.json"
+}
