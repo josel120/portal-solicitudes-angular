@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # "Affected" detection: a change in a project rebuilds only that project; a change in the shared
+  # library or workspace config affects everyone (they all depend on it).
+  affected:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.pick.outputs.projects }}
+      any: ${{ steps.pick.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            workspace:
+              - 'libs/shared/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'angular.json'
+              - 'tsconfig.json'
+              - 'eslint.config.js'
+              - '.github/workflows/**'
+            shell:
+              - 'projects/shell/**'
+            mfe-requests:
+              - 'projects/mfe-requests/**'
+            mfe-approvals:
+              - 'projects/mfe-approvals/**'
+      - id: pick
+        env:
+          CHANGES: ${{ steps.filter.outputs.changes }}
+        run: |
+          if echo "$CHANGES" | grep -q '"workspace"'; then
+            projects='["shared","shell","mfe-requests","mfe-approvals"]'
+          else
+            projects=$(echo "$CHANGES" | jq -c 'map(select(. != "workspace"))')
+          fi
+          echo "projects=$projects" >> "$GITHUB_OUTPUT"
+          echo "any=$([ "$projects" != "[]" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "Affected: $projects"
+
+  verify:
+    needs: affected
+    if: needs.affected.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.affected.outputs.projects) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npx ng lint ${{ matrix.project }}
+      - name: Unit tests
+        run: npx ng test ${{ matrix.project }} --watch=false
+      - name: Build
+        if: matrix.project != 'shared'
+        run: npx ng build ${{ matrix.project }}
+      # Each app is an independently deployable artifact (shell and each remote ship on their own).
+      - name: Upload deployable artifact
+        if: matrix.project != 'shared'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.project }}
+          path: dist/${{ matrix.project }}/browser
+          retention-days: 7
+
+  e2e:
+    needs: [affected, verify]
+    if: needs.affected.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm ci
+        working-directory: api
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  # Independent deploy per app: only the affected artifacts are published. The target (S3 +
+  # CloudFront, Netlify, nginx...) is environment-specific; the shell's federation.manifest.json
+  # is the only file that changes when a remote's URL changes.
+  deploy:
+    needs: [affected, verify, e2e]
+    if: github.ref == 'refs/heads/main' && needs.affected.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: ${{ fromJson(needs.affected.outputs.projects) }}
+        exclude:
+          - project: shared
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ matrix.project }}
+          path: dist
+      - name: Deploy ${{ matrix.project }}
+        run: |
+          echo "Deploying ${{ matrix.project }} ($(find dist -type f | wc -l) files)"
+          echo "Replace this step with the real target, e.g. aws s3 sync dist s3://portal-${{ matrix.project }}"
