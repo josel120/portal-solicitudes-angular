@@ -39,7 +39,7 @@ Decisiones de arquitectura, supuestos, trade-offs y pendientes. Ordenado de lo e
 ### Costos de usar microfrontends (honestamente)
 - **Complejidad operativa**: 3 procesos en desarrollo, 3 artefactos y despliegues, un manifiesto por entorno, CORS/URLs entre orígenes.
 - **Acoplamiento por versiones**: los singletons estrictos obligan a actualizar Angular en todas las apps a la vez; el "despliegue independiente" lo es para código de negocio, no para upgrades del framework.
-- **DX**: el dev server de federación es más lento que `ng serve` normal y tiene un problema conocido (ver §9). Los errores de carga de remotes aparecen en runtime, no en compilación.
+- **DX**: el dev server de federación es más lento que `ng serve` normal y tiene trampas propias (ver el final de §11). Los errores de carga de remotes aparecen en runtime, no en compilación.
 - **Rendimiento**: un request extra por remote (`remoteEntry.json`) y chunks compartidos que no se pueden optimizar globalmente.
 - **Testing**: las pruebas unitarias no detectan problemas de federación; por eso hay una e2e contra las 3 apps reales.
 - Para un portal de este tamaño, **un monolito modular con lazy loading sería más barato**. Los microfrontends se justifican si equipos distintos poseen y despliegan cada dominio.
@@ -127,5 +127,6 @@ Verificados con peticiones reales (sin modificar datos) o por lectura de `api/se
 - Foco tras navegar: en vistas que cargan datos de forma asíncrona (detalle) el `h1` aún no existe al terminar la navegación, así que el foco cae en `<main>`. Mejorable moviendo el foco cuando el `h1` aparece.
 - Pruebas de accesibilidad automatizadas (axe) y visual regression.
 
-### Problema conocido de DX
-- Si se edita `libs/shared` con `ng serve` corriendo, el rebuild incremental del dev server de Native Federation puede dejar la app en blanco con `ReferenceError: ngDevMode is not defined` (el bundle compartido se regenera sin la marca de modo desarrollo). **Solución: reiniciar `npm start`.** No afecta los builds de producción ni la CI.
+### Problema de DX encontrado y resuelto
+- Síntoma: app en blanco con `ReferenceError: ngDevMode is not defined`. Causa: el dev server de Native Federation sirve `remoteEntry.json` y los externals compartidos **desde la carpeta de salida en disco**, y por defecto `ng build` (producción) escribe en la misma (`dist/<app>/browser`). Un build de producción con `npm start` corriendo reemplazaba el import map por uno que apuntaba al Angular de producción (sin `ngDevMode`), mezclado con código de la app compilado en desarrollo.
+- Solución: la configuración `development` de cada app escribe en `dist/dev/<app>` (`angular.json`). Verificado: con los dev servers corriendo se hace un `ng build` de producción y la app sigue funcionando.

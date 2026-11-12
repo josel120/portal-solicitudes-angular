@@ -23,6 +23,7 @@ Herramienta: **Claude Code** (modelo Claude Opus) en la terminal, con acceso al 
 ## Qué verificó en vez de suponer
 
 - Que Signal Forms es estable en v22 y las firmas reales de `rxResource`, `currentNavigation` y de la API de Native Federation v4 (leyendo los `.d.ts` instalados), en lugar de confiar en lo que recordaba de versiones anteriores.
+- Cada remote en modo standalone (`ng serve mfe-requests` / `mfe-approvals`): login, listado, detalle, `/forbidden` para un empleado y bandeja para un aprobador.
 - En el navegador: guard + `returnUrl`, filtros en la URL tras refresh, montos normalizados, **409 real** (aprobando la misma solicitud con otro aprobador vía `curl`), 422 del servidor en el campo correcto, creación completa, y **remote caído → Reintentar** apagando y levantando `mfe-approvals`.
 - Que los singletons quedaron así en `remoteEntry.json` (`@angular/core`, `rxjs`, `@portal/shared` con `singleton` y `strictVersion`).
 - Que la regla de límites del lint realmente falla con un import entre remotes.
@@ -36,10 +37,10 @@ Herramienta: **Claude Code** (modelo Claude Opus) en la terminal, con acceso al 
 - Se descartó duplicar en el cliente las reglas de negocio ocultas del servidor: la UI debe mostrar cualquier 422, y duplicar reglas no documentadas las desincroniza.
 - Se descartó `@defer` "porque suma puntos": las vistas ya son lazy por ruta y no había contenido diferible que lo justificara.
 - La primera versión de la e2e paginaba la bandeja antes de que cargara la tabla; se corrigió esperando cada página.
-- La primera ejecución de la e2e falló por `ngDevMode is not defined` tras editar `libs/shared` con el dev server corriendo; se diagnosticó como un problema del rebuild incremental (se arregla reiniciando) y se documentó en lugar de esconderlo.
+- La primera ejecución de la e2e falló por `ngDevMode is not defined`. **El primer diagnóstico de la IA fue incorrecto** ("rebuild incremental al editar `libs/shared`, se arregla reiniciando") y llegó a quedar documentado así. Al probar los remotes en modo standalone el error reapareció sin ediciones, lo que obligó a buscar la causa real: `ng build` de producción y el dev server de federación comparten la carpeta de salida desde la que el dev server sirve el import map. Se corrigió separando la salida de desarrollo (`dist/dev/<app>`) y se verificó haciendo un build de producción con los servidores corriendo.
 - Ajustes de lint (`void` en uniones, clase vacía) corregidos en el código, no desactivando reglas.
 
 ## Lo que la IA no puede garantizar
 
 - La defensa en vivo es sin IA: conviene recorrer `libs/shared/src/lib/api/requests-api.ts`, `projects/shell/src/app/remotes/remote-registry.ts`, `requests-list.page.ts`, `request-create.page.ts` y `approvals-inbox.page.ts` hasta poder explicarlos y modificarlos.
-- El job de deploy de la CI es un placeholder y la CI no se ejecutó en GitHub durante la sesión.
+- El job de deploy de la CI es un placeholder (lint, test, build y e2e sí corrieron en verde en GitHub Actions).
