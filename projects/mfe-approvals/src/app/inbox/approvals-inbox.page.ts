@@ -12,7 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   ApiError,
@@ -74,10 +74,10 @@ export class ApprovalsInboxPage {
   protected readonly rejectingId = signal<number | null>(null);
   protected readonly busyId = signal<number | null>(null);
   protected readonly notice = signal<InboxNotice | null>(null);
-  protected readonly comment = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required, Validators.minLength(5)],
+  protected readonly rejectForm = new FormGroup({
+    comment: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.minLength(5)] }),
   });
+  protected readonly comment = this.rejectForm.controls.comment;
 
   constructor() {
     // Deciding the last item of the last page leaves it empty: step back one page.

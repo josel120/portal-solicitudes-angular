@@ -38,21 +38,20 @@ function messagesFor(control: AbstractControl | null, extraErrorKeys: readonly s
 
 /**
  * Renders validation messages for a control. Bridges the form's event stream into a signal so it
- * works with OnPush/zoneless without the template calling methods.
+ * works with OnPush/zoneless without the template calling methods. Give the host an `id` and point
+ * the input's `aria-describedby` at it.
  */
 @Component({
   selector: 'ps-field-error',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (message of messages(); track message) {
-      <p class="ps-field-error" [id]="$index === 0 ? id() : null">{{ message }}</p>
+      <p class="ps-field-error">{{ message }}</p>
     }
   `,
 })
 export class FieldError {
   readonly control = input.required<AbstractControl | null>();
-  /** Id referenced by the input's aria-describedby. */
-  readonly id = input.required<string>();
   /** Group-level error keys to also show on this control (e.g. `dateRange`). */
   readonly groupErrors = input<readonly string[]>([]);
   readonly group = input<AbstractControl | null>(null);
