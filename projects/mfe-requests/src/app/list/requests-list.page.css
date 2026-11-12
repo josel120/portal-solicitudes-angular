@@ -1,0 +1,55 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filters .clear {
+  margin-bottom: 1rem;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  transition: opacity 0.15s;
+}
+
+.table-wrap.is-loading {
+  opacity: 0.55;
+}
+
+.num {
+  text-align: right;
+}
+
+td a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-size {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 720px) {
+  .filters {
+    grid-template-columns: 1fr;
+  }
+}

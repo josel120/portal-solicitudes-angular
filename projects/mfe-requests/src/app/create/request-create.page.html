@@ -1,0 +1,118 @@
+<a class="back" routerLink="..">← Volver al listado</a>
+<h1>Nueva solicitud</h1>
+
+@if (catalog.error(); as error) {
+  <ps-error-state title="No pudimos cargar los tipos de solicitud." [message]="error.message" (retry)="catalog.reload()" />
+} @else if (catalog.hasValue()) {
+  <form class="ps-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    @if (formError()) {
+      <p class="ps-alert ps-alert--error" role="alert">{{ formError() }}</p>
+    }
+
+    <div class="ps-field">
+      <label for="type">Tipo de solicitud</label>
+      <select id="type" formControlName="type" aria-describedby="type-help type-error">
+        @for (t of catalog.value(); track t.id) {
+          <option [value]="t.id">{{ t.name }}</option>
+        }
+      </select>
+      <small id="type-help" class="help">{{ selectedType()?.description }}</small>
+      <ps-field-error [control]="form.controls.type" id="type-error" />
+    </div>
+
+    <div class="ps-field">
+      <label for="title">Título</label>
+      <input id="title" type="text" formControlName="title" maxlength="80" aria-describedby="title-error" />
+      <ps-field-error [control]="form.controls.title" id="title-error" />
+    </div>
+
+    <fieldset formGroupName="details">
+      <legend>Detalles</legend>
+
+      @if (visibleFields().has('model')) {
+        <div class="ps-field">
+          <label for="model">Modelo</label>
+          <input id="model" type="text" formControlName="model" aria-describedby="model-error" />
+          <ps-field-error [control]="form.controls.details.controls.model" id="model-error" />
+        </div>
+      }
+
+      @if (visibleFields().has('system')) {
+        <div class="ps-field">
+          <label for="system">Sistema</label>
+          <input id="system" type="text" formControlName="system" aria-describedby="system-error" />
+          <ps-field-error [control]="form.controls.details.controls.system" id="system-error" />
+        </div>
+      }
+
+      @if (visibleFields().has('justification')) {
+        <div class="ps-field">
+          <label for="justification">Justificación</label>
+          <textarea
+            id="justification"
+            rows="3"
+            formControlName="justification"
+            aria-describedby="justification-error"
+          ></textarea>
+          <ps-field-error [control]="form.controls.details.controls.justification" id="justification-error" />
+        </div>
+      }
+
+      @if (visibleFields().has('destination')) {
+        <div class="ps-field">
+          <label for="destination">Destino</label>
+          <input id="destination" type="text" formControlName="destination" aria-describedby="destination-error" />
+          <ps-field-error [control]="form.controls.details.controls.destination" id="destination-error" />
+        </div>
+      }
+
+      @if (visibleFields().has('startDate')) {
+        <div class="dates">
+          <div class="ps-field">
+            <label for="startDate">Fecha de inicio</label>
+            <input id="startDate" type="date" formControlName="startDate" aria-describedby="startDate-error" />
+            <ps-field-error [control]="form.controls.details.controls.startDate" id="startDate-error" />
+          </div>
+          <div class="ps-field">
+            <label for="endDate">Fecha de fin</label>
+            <input id="endDate" type="date" formControlName="endDate" aria-describedby="endDate-error" />
+            <ps-field-error
+              [control]="form.controls.details.controls.endDate"
+              [group]="form.controls.details"
+              [groupErrors]="['dateRange']"
+              id="endDate-error"
+            />
+          </div>
+        </div>
+      }
+    </fieldset>
+
+    @if (visibleFields().has('amount')) {
+      <div class="ps-field">
+        <label for="amount">Monto</label>
+        <input
+          id="amount"
+          type="number"
+          min="0"
+          step="0.01"
+          inputmode="decimal"
+          formControlName="amount"
+          aria-describedby="amount-help amount-error"
+        />
+        @if (selectedType()?.maxAmount; as max) {
+          <small id="amount-help" class="help">Máximo {{ max }}</small>
+        }
+        <ps-field-error [control]="form.controls.amount" id="amount-error" />
+      </div>
+    }
+
+    <div class="actions">
+      <a class="ps-btn" routerLink="..">Cancelar</a>
+      <button type="submit" class="ps-btn ps-btn--primary" [disabled]="submitting()">
+        {{ submitting() ? 'Enviando…' : 'Crear solicitud' }}
+      </button>
+    </div>
+  </form>
+} @else {
+  <ps-loading-state label="Cargando formulario…" />
+}

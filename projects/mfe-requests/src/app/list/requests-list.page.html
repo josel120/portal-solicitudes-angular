@@ -1,0 +1,126 @@
+<div class="header">
+  <h1>Solicitudes</h1>
+  <a class="ps-btn ps-btn--primary" routerLink="new">Nueva solicitud</a>
+</div>
+
+<form class="filters" role="search" (submit)="$event.preventDefault()">
+  <div class="ps-field">
+    <label for="search">Buscar</label>
+    <input
+      #search
+      id="search"
+      type="search"
+      placeholder="Título, solicitante, destino…"
+      [value]="searchText()"
+      (input)="searchText.set(search.value)"
+    />
+  </div>
+  <div class="ps-field">
+    <label for="status">Estado</label>
+    <select #status id="status" (change)="setStatus(status.value)">
+      <option value="" [selected]="filters().status === null">Todos</option>
+      @for (s of statuses; track s) {
+        <option [value]="s" [selected]="filters().status === s">{{ statusLabels[s] }}</option>
+      }
+    </select>
+  </div>
+  <div class="ps-field">
+    <label for="type">Tipo</label>
+    <select #type id="type" (change)="setType(type.value)">
+      <option value="" [selected]="filters().type === null">Todos</option>
+      @for (t of types; track t) {
+        <option [value]="t" [selected]="filters().type === t">{{ typeLabels[t] }}</option>
+      }
+    </select>
+  </div>
+  @if (hasActiveFilters()) {
+    <button type="button" class="ps-btn clear" (click)="clearFilters()">Limpiar filtros</button>
+  }
+</form>
+
+<p class="ps-sr-only" aria-live="polite">
+  @if (page(); as p) {
+    {{ p.total }} solicitudes encontradas
+  }
+</p>
+
+@if (requests.error(); as error) {
+  <ps-error-state [message]="error.message" (retry)="requests.reload()" />
+} @else if (page(); as p) {
+  @if (p.items.length === 0) {
+    <ps-empty-state title="No hay solicitudes que coincidan con los filtros.">
+      @if (hasActiveFilters()) {
+        <button type="button" class="ps-btn" (click)="clearFilters()">Limpiar filtros</button>
+      }
+    </ps-empty-state>
+  } @else {
+    <div class="table-wrap" [class.is-loading]="requests.isLoading()" [attr.aria-busy]="requests.isLoading()">
+      <table class="ps-table">
+        <caption class="ps-sr-only">
+          Solicitudes. Usa las flechas para moverte entre filas y Enter para abrir el detalle.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Título</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Solicitante</th>
+            <th scope="col" class="num">Monto</th>
+            <th scope="col">Creada</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (request of p.items; track request.id) {
+            <tr
+              #row
+              [tabindex]="$index === activeRow() ? 0 : -1"
+              (click)="open(request.id)"
+              (focus)="activeRow.set($index)"
+              (keydown)="onRowKeydown($event, $index, request.id)"
+            >
+              <td>{{ request.id }}</td>
+              <td><a [routerLink]="[request.id]" tabindex="-1">{{ request.title }}</a></td>
+              <td>{{ typeLabels[request.type] }}</td>
+              <td><ps-status-badge [status]="request.status" /></td>
+              <td>{{ request.requesterName }}</td>
+              <td class="num">
+                @if (request.amount !== null) {
+                  {{ request.amount | number: '1.2-2' }}
+                } @else {
+                  <span aria-label="Sin monto">—</span>
+                }
+              </td>
+              <td>{{ request.createdAt | date: 'dd/MM/yyyy' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="pagination" aria-label="Paginación">
+      <button type="button" class="ps-btn" [disabled]="filters().page <= 1" (click)="goToPage(filters().page - 1)">
+        Anterior
+      </button>
+      <span>Página {{ filters().page }} de {{ totalPages() }} · {{ p.total }} resultados</span>
+      <button
+        type="button"
+        class="ps-btn"
+        [disabled]="filters().page >= totalPages()"
+        (click)="goToPage(filters().page + 1)"
+      >
+        Siguiente
+      </button>
+      <label class="page-size">
+        Por página
+        <select #size (change)="setPageSize(size.value)">
+          @for (n of pageSizes; track n) {
+            <option [value]="n" [selected]="filters().limit === n">{{ n }}</option>
+          }
+        </select>
+      </label>
+    </nav>
+  }
+} @else {
+  <ps-loading-state label="Cargando solicitudes…" />
+}

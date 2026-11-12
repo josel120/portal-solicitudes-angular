@@ -1,0 +1,32 @@
+.back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--ps-primary);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title h1 {
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.6rem 1.5rem;
+  margin: 1.25rem 0 0;
+}
+
+dt {
+  font-weight: 600;
+  color: var(--ps-muted);
+}
+
+dd {
+  margin: 0;
+}

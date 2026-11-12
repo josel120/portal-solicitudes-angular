@@ -1,0 +1,53 @@
+<a class="back" routerLink="..">← Volver al listado</a>
+
+@if (request.error(); as error) {
+  <h1>Solicitud #{{ id() }}</h1>
+  <ps-error-state
+    [title]="notFound() ? 'La solicitud no existe.' : 'No pudimos cargar la solicitud.'"
+    [message]="notFound() ? null : error.message"
+    [retryable]="!notFound()"
+    (retry)="request.reload()"
+  />
+} @else if (request.hasValue()) {
+  @let r = request.value();
+  <article class="ps-card" [attr.aria-busy]="request.isLoading()">
+    <header class="title">
+      <h1>{{ r.title }}</h1>
+      <ps-status-badge [status]="r.status" />
+    </header>
+    <dl class="grid">
+      <dt>Número</dt>
+      <dd>#{{ r.id }}</dd>
+      <dt>Tipo</dt>
+      <dd>{{ typeLabels[r.type] }}</dd>
+      <dt>Solicitante</dt>
+      <dd>{{ r.requesterName }}</dd>
+      <dt>Monto</dt>
+      <dd>
+        @if (r.amount !== null) {
+          {{ r.amount | number: '1.2-2' }}
+        } @else {
+          No aplica
+        }
+      </dd>
+      @for (row of rows(); track row.label) {
+        <dt>{{ row.label }}</dt>
+        <dd>{{ row.value }}</dd>
+      }
+      <dt>Creada</dt>
+      <dd>{{ r.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      <dt>Última actualización</dt>
+      <dd>{{ r.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      @if (r.decidedAt) {
+        <dt>Decisión</dt>
+        <dd>{{ r.decidedAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      }
+      @if (r.decisionComment) {
+        <dt>Comentario</dt>
+        <dd>{{ r.decisionComment }}</dd>
+      }
+    </dl>
+  </article>
+} @else {
+  <ps-loading-state label="Cargando solicitud…" />
+}
