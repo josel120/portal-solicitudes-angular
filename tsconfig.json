@@ -11,6 +11,9 @@
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
+    "paths": {
+      "@portal/shared": ["./libs/shared/src/public-api.ts"]
+    },
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve"
@@ -20,5 +23,31 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true
   },
-  "files": []
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/shell/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/shell/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/mfe-requests/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/mfe-requests/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/mfe-approvals/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/mfe-approvals/tsconfig.spec.json"
+    },
+    {
+      "path": "./libs/shared/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/shared/tsconfig.spec.json"
+    }
+  ]
 }
