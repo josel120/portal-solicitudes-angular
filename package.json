@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "start": "concurrently -n shell,requests,approvals -c blue,green,magenta \"npm:start:shell\" \"npm:start:requests\" \"npm:start:approvals\"",
+    "start:shell": "ng serve shell",
+    "start:requests": "ng serve mfe-requests",
+    "start:approvals": "ng serve mfe-approvals",
+    "build": "ng build shell && ng build mfe-requests && ng build mfe-approvals",
+    "test": "ng test shared --watch=false && ng test shell --watch=false && ng test mfe-requests --watch=false && ng test mfe-approvals --watch=false"
   },
   "private": true,
   "packageManager": "npm@12.0.2",
@@ -18,19 +20,20 @@
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
+    "es-module-shims": "^2.8.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0",
-    "es-module-shims": "^2.8.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^22.2.7",
     "@angular/cli": "^22.2.7",
     "@angular/compiler-cli": "^22.2.0",
+    "@softarc/native-federation-orchestrator": "^4.10.0",
+    "concurrently": "^10.0.7",
     "jsdom": "^30.0.0",
     "ng-packagr": "^22.2.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
-    "vitest": "^5.0.0",
-    "@softarc/native-federation-orchestrator": "^4.10.0"
+    "vitest": "^5.0.0"
   }
 }
